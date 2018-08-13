@@ -23,6 +23,12 @@ class spaceBody(object):
         print("Diameter:", self.diameter)
         print("Color:", self.color)
 
+    def isMobile(self):
+        return True
+
+    def isNBody(self):
+        return True
+
     def logState(self, frame):
         print(self.name, ': Frame ', frame)
         print("Forces: ", self.forces)
@@ -31,11 +37,11 @@ class spaceBody(object):
         print("Position: ", self.position)
         print(' ')
 
-    def updatePosition(self, timeStep):
-        self.position += timeStep * self.velocity
+    def updatePosition(self, dT):
+        self.position += dT * self.velocity
 
-    def updateVelocity(self, timeStep):
-        self.velocity += timeStep * self.acceleration
+    def updateVelocity(self, dT):
+        self.velocity += dT * self.acceleration
 
     def updateAcceleration(self):
         self.acceleration = self.forces / self.mass
@@ -49,8 +55,8 @@ class spaceBody(object):
             fDir = distanceVector / distanceMagnitude
             self.forces += self.gravParam * (other.mass / dSquared) * fDir
 
-    def updateState(self, others, timeStep):
+    def updateState(self, others, dT):
         self.computeForces(others)
         self.updateAcceleration()
-        self.updateVelocity(timeStep)
-        self.updatePosition(timeStep)
+        self.updateVelocity(dT)
+        self.updatePosition(dT)
