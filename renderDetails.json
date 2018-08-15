@@ -1,0 +1,29 @@
+{
+  "bodies":[
+    {
+      "name":"Sun",
+      "size":0.5,
+      "color":"yellow"
+    },
+    {
+      "name":"Mercury",
+      "size":0.1,
+      "color":"magenta"
+    },
+    {
+      "name":"Venus",
+      "size":0.1,
+      "color":"cream"
+    },
+    {
+      "name":"Earth",
+      "size":0.1,
+      "color":"blue"
+    },
+    {
+      "name":"Mars",
+      "size":0.1,
+      "color":"red"
+    }
+  ]
+}

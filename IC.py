@@ -148,7 +148,7 @@ def keplerian(startDate):
     mars.updateKOEFromDate(startDate)
     mars.setCoordsFromKOE()
     bodies = bodies + [mars]
-
+    '''
     name = 'Jupiter'
     diameter = 0.03
     color = orange
@@ -252,5 +252,6 @@ def keplerian(startDate):
     neptune.updateKOEFromDate(startDate)
     neptune.setCoordsFromKOE()
     bodies = bodies + [neptune]
+    '''
     scaleFactor = 1
     return bodies, scaleFactor
