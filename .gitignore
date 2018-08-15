@@ -10,6 +10,9 @@
 renders/
 movies/
 __pycache__/
+movies/
+scenes/
+bodies/
 
 #Blend Files
 *.blend
