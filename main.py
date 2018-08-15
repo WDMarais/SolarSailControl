@@ -8,7 +8,7 @@ import datetime
 import numpy as np
 from scipy.constants import au
 
-filePath = '/home/wdmarais/Desktop/blenderSpaceSim/KeplerElements/IC.py'
+filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
 fileDir = os.path.dirname(filePath)
 sys.path.append(fileDir)
 print(sys.path)
