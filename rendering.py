@@ -1,12 +1,7 @@
 import bpy, bmesh
-from IC import keplerian
-#######################
-# Rendering Constants #
-#######################
-xRes, yRes = 1920, 1080
-resPercent = 50.0
-leaveMotionTrails = True
-
+import json
+from scipy.constants import au
+import numpy as np
 #####################
 # Blender Utilities #
 #####################
@@ -85,22 +80,79 @@ def render_and_save(moves):
 # Main Code #
 #############
 
-initializeScene(firstTimeStep, lastTimeStep)
+with open('general.json') as g:
+    generalData = json.load(g)
+g.close()
 
-for body in bodies:
-    name = body.name
-    position = body.position / distanceFactor
-    diameter = body.diameter
-    color = body.color
+sceneName = generalData["sceneName"]
+sceneFile = generalData["sceneFile"]
+bpy.context.scene.render.resolution_x = generalData["resolution_x"]
+bpy.context.scene.render.resolution_y = generalData["resolution_y"]
+bpy.context.scene.render.resolution_percentage = generalData["resolution_percentage"]
+bpy.context.scene.render.ffmpeg.codec = generalData["file_codec"]
+extension = ".mp4"
+bpy.context.scene.render.filepath = "//movies/" + sceneName + extension
+bpy.context.scene.render.ffmpeg.format = generalData["file_format"]
+bpy.context.scene.render.fps = generalData["frames_per_second"]
+leaveTrails = generalData["leaveTrails"]
+if (leaveTrails == "True"):
+    leaveTrails = True
+else:
+    leaveTrails = False
+
+firstTimeStep = generalData["firstTimeStep"]
+lastTimeStep = generalData["lastTimeStep"]
+
+with open(sceneFile) as sF:
+    sceneData = json.load(sF)
+sF.close()
+
+with open("colors.json") as colorFile:
+    c = json.load(colorFile)
+colorFile.close()
+
+bodies = sceneData["bodies"]
+dataArray = np.zeros((len(bodies), (lastTimeStep + 1 - firstTimeStep), 3))
+initializeScene(firstTimeStep, lastTimeStep)
+for b, body in enumerate(bodies):
+    name = body["name"]
+    dataFile = name + "/Pos.dat"
+    dataArray[b] = np.genfromtxt(sceneName + "/" + dataFile)
+    dataArray[b] /= au
+    position = dataArray[b, 0]
+    diameter = body["diameter"]
+    colorName = body["color"]
+    color = tuple(c[colorName])
     addNamedSphere(name, position, diameter, color)
 
 bpy.context.scene.frame_current = 1
 bpy.ops.object.select_all(action='TOGGLE')
 
+trailInterval = 10
+ticker = 10
+markerSize = 0.02
+for f in range(lastTimeStep):
+    print("Frame: ", f)
+    bpy.context.scene.frame_current = f
+    for b, body in enumerate(bodies):
+        name = body["name"]
+        colorName = body["color"]
+        color = tuple(c[colorName])
+        pos = dataArray[b][f]
+        o = bpy.data.objects[name]
+        o.location = pos
+        if ((f % ticker) == 0):
+            addKeyFrame(name, pos, f)
+        if ((leaveTrails == True) and ((f % trailInterval) == 0)):
+            addMarker(name, pos, markerSize, color, f)
+            marker = bpy.context.active_object
+            addViewFrame(marker, False, firstTimeStep) #Make invisible from start
+            addViewFrame(marker, True, f) #Make visible from current frame
+
 activeLayers = returnLayerTuple(0)
 
-loc = (-0.2, -0.05, 5.0)
-rot = (0.0, 0.0, 45.0)
+loc = (0.0, 0.15, 7.0)
+rot = (0.0, 0.0, np.deg2rad(45.0))
 addCamera(loc, rot, activeLayers)
 bpy.context.scene.camera = bpy.data.objects['Camera']
 
@@ -112,6 +164,11 @@ loc = (0.0, -3.0, 2.0)
 rot = (0.0, 0.0, 0.0)
 bpy.ops.object.lamp_add(type='POINT', location = loc, rotation = rot, layers = activeLayers)
 
+bpy.ops.wm.save_mainfile(filepath=sceneName+".blend")
+print("Setup complete")
+#bpy.ops.render.render(animation=True)
+'''
 for f in range(firstTimeStep, lastTimeStep):
     bpy.context.scene.frame_set(f)
     render_and_save(f)
+'''

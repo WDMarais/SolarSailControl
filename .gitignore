@@ -7,6 +7,8 @@
 
 # Directories #
 ###############
+scenes/
+Kepler/
 renders/
 movies/
 __pycache__/

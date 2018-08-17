@@ -5,6 +5,7 @@ import sys
 import os
 import datetime
 import numpy as np
+import json
 from scipy.constants import au
 
 filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
@@ -13,7 +14,8 @@ sys.path.append(fileDir)
 print(sys.path)
 from IC import basicScene
 from IC import keplerian
-
+from IC import keplerian2
+from spaceBodies import thrustSatellite
 ##################
 #Scene Parameters#
 ##################
@@ -23,11 +25,16 @@ numSteps = 1000
 dT = 24*60*60
 
 #bodies, distanceFactor = basicScene()
+#bodies, distanceFactor = keplerian(theDate)
 
 theDate = datetime.datetime.now()
-bodies, distanceFactor = keplerian(theDate)
+bodies, dScaleFactor, tScaleFactor = keplerian2(theDate)
+numBodies = len(bodies)
+dataArray = np.zeros((numBodies, numSteps, numDimensions))
 
-bodyPositions = np.zeros((len(bodies), numSteps, numDimensions))
+with open('general.json') as g:
+    sceneData = json.load(g)
+g.close()
 ###########
 #Main code#
 ###########
@@ -39,7 +46,7 @@ bodyPositions = np.zeros((len(bodies), numSteps, numDimensions))
 
 ticker = 0
 frameGap = 10
-dataPath = 'bodies/'
+dataPath = sceneData["sceneName"] + "/"
 
 def createDir(newDirectory):
     if not os.path.exists(os.path.dirname(newDirectory)):
@@ -49,22 +56,26 @@ def createDir(newDirectory):
     		raise
 
 for b in bodies:
+    b.pos *= dScaleFactor
     createDir(dataPath + b.name + '/')
 
 for f in range(numSteps):
-    print("Frame: ", f)
+    print("TimeStep: ", f)
     ticker += 1
 
     for b, body in enumerate(bodies):
         others = np.delete(bodies, b)
-        if body.isNBody():
-            body.updateState(others, dT)
-        else:
-            body.updateState(dT)
+        if (type(body) is thrustSatellite):
+            forceMagnitude = 2
+            position = bodies[0].pos
+            body.thrustWidenOrbit(forceMagnitude)
+        body.updateState(others, dT)
 
-        bodyPositions[b][f] = body.position
+        dataArray[b][f] = body.pos
 
 for b, body in enumerate(bodies):
     fileName = dataPath + body.name + '/' + 'Pos.dat'
     f = open(fileName, 'w')
-    np.savetxt(f, bodyPositions[b])
+    print("Shape: ", dataArray[b].shape)
+    np.savetxt(f, dataArray[b])
+    f.close()

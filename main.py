@@ -12,8 +12,12 @@ filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
 fileDir = os.path.dirname(filePath)
 sys.path.append(fileDir)
 print(sys.path)
+from spaceBodies import thrustSatellite
 from IC import basicScene
+from IC import basicScene2
 from IC import keplerian
+from IC import keplerian2
+
 ###################
 #Blender Utilities#
 ###################
@@ -97,10 +101,11 @@ lastTimeStep = 1000
 dT = 24*60*60
 leavePathMarkers = True
 
-#bodies, distanceFactor = basicScene()
+#bodies, distanceFactor = keplerian2()
 
 theDate = datetime.datetime.now()
-bodies, distanceFactor = keplerian(theDate)
+bodies, dScaleFactor, tScaleFactor = keplerian2(theDate)
+print("dF: ", dScaleFactor)
 
 initializeScene(firstTimeStep, lastTimeStep)
 ###########
@@ -113,16 +118,22 @@ initializeScene(firstTimeStep, lastTimeStep)
 #addCamera(location, rotation, whichLayers)
 
 for body in bodies:
+    body.toConsole()
     name = body.name
-    position = body.position / distanceFactor
+    print(type(body.pos))
+    body.pos = body.pos * dScaleFactor
+    pos = body.pos / dScaleFactor
     diameter = body.diameter
-    color = body.color
+    #color = body.color
+    color = tuple(body.color)
+    '''
     print(name)
     print(position)
     print(diameter)
     print(color)
     print()
-    addNamedSphere(name, position, diameter, color)
+    '''
+    addNamedSphere(name, pos, diameter, color)
 
 ticker = 0
 frameGap = 10
@@ -133,19 +144,20 @@ for f in range(firstTimeStep, lastTimeStep):
 
     for index, body in enumerate(bodies):
         others = np.delete(bodies, index)
-        if body.isNBody():
-            body.updateState(others, dT)
-        else:
-            body.updateState(dT)
+        if (type(body) is thrustSatellite):
+            forceMagnitude = 2
+            position = bodies[0].pos
+            body.thrustWidenOrbit(forceMagnitude)
+        body.updateState(others, dT)
 
     if (ticker >= frameGap):
         ticker = 0
 
         for body in bodies:
             if body.isMobile():
-                addKeyFrame(body.name, body.position / distanceFactor, f)
+                addKeyFrame(body.name, body.pos / dScaleFactor, f)
                 if (leavePathMarkers == True):
-                    addMarker(body.name, body.position / distanceFactor, body.markerSize, body.color, f)
+                    addMarker(body.name, body.pos / dScaleFactor, body.markerSize, body.color, f)
                     marker = bpy.context.active_object
                     addViewFrame(marker, False, firstTimeStep) #Make invisible from start
                     addViewFrame(marker, True, f) #Make visible from current frame
@@ -155,7 +167,7 @@ bpy.ops.object.select_all(action='TOGGLE')
 
 activeLayers = returnLayerTuple(0)
 
-loc = (-0.2, -0.05, 5.0)
+loc = (-0.2, -0.05, 8.0)
 rot = (0.0, 0.0, 45.0)
 addCamera(loc, rot, activeLayers)
 bpy.context.scene.camera = bpy.data.objects['Camera']
@@ -168,6 +180,8 @@ loc = (0.0, -3.0, 2.0)
 rot = (0.0, 0.0, 0.0)
 bpy.ops.object.lamp_add(type='POINT', location = loc, rotation = rot, layers = activeLayers)
 
+'''
 for f in range(firstTimeStep, lastTimeStep):
     bpy.context.scene.frame_set(f)
     render_and_save(f)
+'''

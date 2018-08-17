@@ -1,7 +1,10 @@
 import numpy as np
+import json
 from spaceBodies import spaceBody
+from spaceBodies import thrustSatellite
 from keplerBodies import immobileBody
 from keplerBodies import keplerBody
+from keplerBodies import generalBody
 
 import datetime
 
@@ -9,22 +12,14 @@ dimensions = 3
 from scipy.constants import G # Newton's gravitational constant
 from scipy.constants import au
 
+with open('colors.json') as f:
+    colors = json.load(f)
+f.close()
 
-black = (0.0, 0.0, 0.0)
-white = (1.0, 1.0, 1.0)
-
-red = (1.0, 0.0, 0.0)
-green = (0.0, 1.0, 0.0)
-blue = (0.0, 0.0, 1.0)
-
-cyan = (0.0, 1.0, 1.0)
-magenta = (1.0, 0.0, 1.0)
-yellow = (1.0, 1.0, 0.0)
-
-orange = (1.0, 0.15, 0.0)
-foamGreen = (0.25, 1.0, 0.65)
-vYellow = (1.0, 0.5, 0.0)
-cream = (1.0, 0.55, 0.25)
+with open('general.json') as g:
+    generalDetails = json.load(g)
+    sceneFile = generalDetails["sceneFile"]
+g.close()
 
 def basicScene():
     name = 'Sun'
@@ -32,7 +27,7 @@ def basicScene():
     position = np.zeros(dimensions)
     velocity = np.zeros(dimensions)
     diameter = 0.2
-    color = yellow
+    color = colors["yellow"]
     Sun = spaceBody(name, mass, position, velocity, diameter, color)
 
     name = 'Venus'
@@ -40,7 +35,7 @@ def basicScene():
     position = np.array([0.723 * au, 0.0, 0.0])
     velocity = np.array([0.0, -35.02 * 1000, 0.0])
     diameter = 0.1
-    color = vYellow
+    color = colors["vYellow"]
     Venus = spaceBody(name, mass, position, velocity, diameter, color)
 
     name = 'Earth'
@@ -48,11 +43,37 @@ def basicScene():
     position = np.array([-1 * au, 0.0, 0.0])
     velocity = np.array([0, 29.783 * 1000, 0])
     diameter = 0.1
-    color = blue
+    color = colors["blue"]
     Earth = spaceBody(name, mass, position, velocity, diameter, color)
 
     bodies = [Sun, Venus, Earth]
     scaleFactor = 1 * au
+    return bodies, scaleFactor
+
+def basicScene2():
+    with open("setupBasic.json") as basic:
+        theScene = json.load(basic)
+    basic.close()
+    with open('colors.json') as f:
+        colors = json.load(f)
+    f.close()
+
+    bodyInfo = theScene["bodies"]
+    bodies = []
+
+    scaleFactor = 1 * au
+
+    for b in bodyInfo:
+        name = b["name"]
+        diameter = np.array(b["diameter"])
+        colorID = b["color"]
+        color = colors[colorID]
+        mass = b["mass"]
+        startPos = np.array(b["startPos"]) * scaleFactor
+        startVel = np.array(b["startVel"]) * scaleFactor
+        body = spaceBody(name, diameter, color, mass, startPos, startVel)
+        bodies = bodies + [body]
+
     return bodies, scaleFactor
 
 def keplerian(startDate):
@@ -61,13 +82,14 @@ def keplerian(startDate):
     name = 'Sun'
     diameter = 0.06
     position = np.array([0.0, 0.0, 0.0])
-    color = yellow
+    color = colors["yellow"]
+    print("Yellow: ", color)
     sun = immobileBody(name, position, diameter, color)
     bodies = bodies + [sun]
 
     name = 'Mercury'
     diameter = 0.03
-    color = magenta
+    color = colors["magenta"]
     mercury = keplerBody(name, diameter, color)
     a0 = 0.38709843
     e0 = 0.20563661
@@ -88,7 +110,7 @@ def keplerian(startDate):
 
     name = 'Venus'
     diameter = 0.03
-    color = vYellow
+    color = colors["vYellow"]
     venus = keplerBody(name, diameter, color)
     a0 = 0.72332102
     aDot = -0.00000026
@@ -109,7 +131,7 @@ def keplerian(startDate):
 
     name = 'Earth'
     diameter = 0.03
-    color = blue
+    color = colors["blue"]
     earth = keplerBody(name, diameter, color)
     a0 = 1.00000018
     aDot = -0.00000003
@@ -130,7 +152,7 @@ def keplerian(startDate):
 
     name = 'Mars'
     diameter = 0.03
-    color = red
+    color = colors["red"]
     mars = keplerBody(name, diameter, color)
     a0 = 1.52371243
     aDot = 0.00000097
@@ -151,7 +173,7 @@ def keplerian(startDate):
     '''
     name = 'Jupiter'
     diameter = 0.03
-    color = orange
+    color = colors["orange"]
     jupiter = keplerBody(name, diameter, color)
     a0 = 5.20248019
     aDot = -0.00002864
@@ -177,7 +199,7 @@ def keplerian(startDate):
 
     name = 'Saturn'
     diameter = 0.03
-    color = cream
+    color = colors["cream"]
     saturn = keplerBody(name, diameter, color)
     a0 = 9.54149883
     aDot = -0.00003065
@@ -203,7 +225,7 @@ def keplerian(startDate):
 
     name = 'Uranus'
     diameter = 0.03
-    color = foamGreen
+    color = colors["foamGreen"]
     uranus = keplerBody(name, diameter, color)
     a0 = 19.18797948
     aDot = -0.00020455
@@ -229,7 +251,7 @@ def keplerian(startDate):
 
     name = 'Neptune'
     diameter = 0.03
-    color = cyan
+    color = colors["cyan"]
     neptune = keplerBody(name, diameter, color)
     a0 = 30.06952752
     aDot = 0.00006447
@@ -255,3 +277,51 @@ def keplerian(startDate):
     '''
     scaleFactor = 1
     return bodies, scaleFactor
+
+def keplerian2(startDate):
+    with open(sceneFile) as s:
+        myScene = json.load(s)
+    s.close()
+
+    bodyDict = myScene["bodies"]
+    bodies = []
+
+    for b in bodyDict:
+        name = b["name"]
+        mass = b["mass"]
+        type = b["type"]
+        diameter = b["diameter"]
+        colorName = b["color"]
+        color = colors[colorName]
+
+        if "orbitElements" in b:
+            orbitElements = b["orbitElements"]
+            body = spaceBody(name, diameter, color, mass)
+            body.initFromOE(orbitElements, startDate)
+
+        else:
+            if "startPos" in b:
+                startPos = np.array(b["startPos"])
+            if "startVel" in b:
+                startVel = np.array(b["startVel"])
+            if (type == "p"):
+                body = spaceBody(name, diameter, color, mass, startPos, startVel)
+            elif (type == "ts"):
+                body = thrustSatellite(name, diameter, color, mass, startPos, startVel)
+
+        bodies = bodies + [body]
+
+    distanceUnit = myScene["distanceUnit"]
+    timeUnit = myScene["timeUnit"]
+
+    if (distanceUnit == "au"):
+        dScaleFactor = au
+    else:
+        dScaleFactor = 1.0
+
+    if (timeUnit == "cty"):
+        tScaleFactor = 100 * 365.25 * 24 * 60 * 60
+    else:
+        tScaleFactor = 1.0
+
+    return bodies, dScaleFactor, tScaleFactor
