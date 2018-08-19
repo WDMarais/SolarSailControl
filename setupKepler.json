@@ -207,7 +207,7 @@
       "diameter":0.05,
       "color":"cyan",
       "mass":26.5e3,
-      "startPos":[0.5, 0.0, 0.0],
+      "startPos":[0.0, 0.0, 0.5],
       "startVel":[0.0, 50000.0, 0.0]
     }
   ],

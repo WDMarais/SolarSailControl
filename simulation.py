@@ -11,7 +11,7 @@ from scipy.constants import au
 filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
 fileDir = os.path.dirname(filePath)
 sys.path.append(fileDir)
-print(sys.path)
+#print(sys.path)
 from IC import basicScene
 from IC import keplerian
 from IC import keplerian2
