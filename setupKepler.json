@@ -1,4 +1,12 @@
 {
+  "sceneName":"Kepler",
+  "numSteps":2000,
+  "timeStep":43200,
+  "distanceUnit":"au",
+  "timeUnit":"cty",
+  "use_sequencer":"False",
+  "leaveTrails":"True",
+  "trailWidth":0.02,
   "bodies":[
     {
       "name":"Sun",
@@ -210,7 +218,5 @@
       "startPos":[0.0, 0.0, 0.5],
       "startVel":[0.0, 50000.0, 0.0]
     }
-  ],
-  "distanceUnit":"au",
-  "timeUnit":"cty"
+  ]
 }

@@ -1,14 +1,9 @@
 {
   "sceneFile":"setupKepler.json",
-  "sceneName":"Kepler",
   "resolution_x":1920,
   "resolution_y":1080,
   "resolution_percentage":50,
   "file_codec":"H264",
   "file_format":"MPEG4",
-  "frames_per_second":60,
-  "use_sequencer":"False",
-  "leaveTrails":"True",
-  "firstTimeStep":1,
-  "lastTimeStep":1000
+  "frames_per_second":60
 }

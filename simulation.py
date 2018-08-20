@@ -8,9 +8,9 @@ import numpy as np
 import json
 from scipy.constants import au
 
-filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
-fileDir = os.path.dirname(filePath)
-sys.path.append(fileDir)
+#filePath = '/home/wdmarais/Desktop/Skripsie/SolarSailControl/IC.py'
+#fileDir = os.path.dirname(filePath)
+#sys.path.append(fileDir)
 #print(sys.path)
 from IC import basicScene
 from IC import keplerian
@@ -19,10 +19,19 @@ from spaceBodies import thrustSatellite
 ##################
 #Scene Parameters#
 ##################
+
+with open("general.json") as g:
+    gen = json.load(g)
+g.close()
+
+with open(gen["sceneFile"]) as s:
+    scene = json.load(s)
+s.close()
+
 numDimensions = 3
 firstTime = 1
-numSteps = 1000
-dT = 24*60*60
+numSteps = scene["numSteps"]
+dT = scene["timeStep"]
 
 #bodies, distanceFactor = basicScene()
 #bodies, distanceFactor = keplerian(theDate)
@@ -32,9 +41,6 @@ bodies, dScaleFactor, tScaleFactor = keplerian2(theDate)
 numBodies = len(bodies)
 dataArray = np.zeros((numBodies, numSteps, numDimensions))
 
-with open('general.json') as g:
-    sceneData = json.load(g)
-g.close()
 ###########
 #Main code#
 ###########
@@ -46,7 +52,7 @@ g.close()
 
 ticker = 0
 frameGap = 10
-dataPath = sceneData["sceneName"] + "/"
+dataPath = scene["sceneName"] + "/"
 
 def createDir(newDirectory):
     if not os.path.exists(os.path.dirname(newDirectory)):
