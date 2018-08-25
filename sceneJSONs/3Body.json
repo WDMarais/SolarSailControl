@@ -1,8 +1,8 @@
 {
   "name":"PlanetarySim",
   "viewCenter":"Earth",
-  "numSteps":40000,
-  "numKeyFrames":4000,
+  "numSteps":4,
+  "numKeyFrames":4,
   "timeStep":1800,
   "leaveTrails":"True",
   "trailDuration":10000,

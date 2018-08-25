@@ -197,12 +197,13 @@ setRenderSettings(generalSettings)
 flatBD = flattenRecursiveBodiesDict(bodiesDict)
 posArray = np.zeros((len(flatBD), numSteps, 3))
 
+sceneDataPath = "scenes/" + sceneName
 for b, body in enumerate(flatBD):
     name = body["name"]
     posFile = name + "/Pos.dat"
-    posArray[b] = np.genfromtxt(sceneName + "/" + posFile)
+    posArray[b] = np.genfromtxt(sceneDataPath + "/" + posFile)
 
-centerArray = np.genfromtxt(sceneName+"/"+scene["viewCenter"] +"/Pos.dat")
+centerArray = np.genfromtxt(sceneDataPath + "/"+scene["viewCenter"] +"/Pos.dat")
 for b, body in enumerate(flatBD):
     posArray[b] -= centerArray
 
@@ -213,7 +214,6 @@ posArray /= (baseUnitScale * au)
 initializeScene(1, numSteps)
 for b, body in enumerate(flatBD):
     name = body["name"]
-    dataFile = name + "/Pos.dat"
     position = posArray[b][0]
     print(name)
     g = body["graphics"]

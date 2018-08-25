@@ -27,7 +27,7 @@ numSteps = scene["numSteps"]
 numDimensions = 3
 bodies = simUtils.initBodiesRecursive(bodiesDict, initTime)
 
-dataPath = sceneName + "/"
+dataPath = "scenes/" + sceneName + "/"
 fileUtils.createDirs(bodies, dataPath)
 numBodies = len(bodies)
 posArray = np.zeros((numBodies, numSteps, numDimensions))
