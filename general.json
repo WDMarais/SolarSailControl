@@ -1,5 +1,6 @@
 {
-  "sceneFile":"setupKepler.json",
+  "sceneFileDir":"sceneJSONs",
+  "sceneFile":"MorePlanets.json",
   "resolution_x":1920,
   "resolution_y":1080,
   "resolution_percentage":50,
